@@ -3,6 +3,7 @@ package ru.appline;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import ru.appline.logic.Model;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet(urlPatterns = "/calc")
 public class Calculate extends HttpServlet {
@@ -20,6 +25,8 @@ public class Calculate extends HttpServlet {
     public Calculate() {
 
     }
+
+    Map<String, Double> calc=new HashMap<>();
 
     public Calculate(double result) {
         this.result = result;
@@ -58,7 +65,7 @@ public class Calculate extends HttpServlet {
 
         response.setContentType("application/json;charset=utf-8");
         PrintWriter pw = response.getWriter();
-
+        boolean isError = false;
         switch (math) {
             case "+":
                 result = a + b;
@@ -72,14 +79,19 @@ public class Calculate extends HttpServlet {
             case "/":
                 if (b == 0) {
                     pw.print("На 0 делить нельзя");
+                    isError = true;
                 } else {
                     result = a / b;
                 }
                 break;
             default:
                 pw.print("Неправильная операция");
+                isError = true;
                 break;
         }
-        pw.print(gson.toJson(result));
+        if (!isError) {
+            calc.put("result", result);
+            pw.print(gson.toJson(calc));
+        }
     }
 }
